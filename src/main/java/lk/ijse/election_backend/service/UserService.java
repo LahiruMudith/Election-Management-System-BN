@@ -86,4 +86,8 @@ public class UserService {
         return userRepository.findById(id)
                 .orElseThrow(() -> new RuntimeException("User Not Found"));
     }
+
+    public boolean isUserExist(String email) {
+        return userRepository.findByEmailAndIsActiveTrue(email).isPresent();
+    }
 }

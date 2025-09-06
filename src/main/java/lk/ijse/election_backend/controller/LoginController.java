@@ -23,6 +23,32 @@ public class LoginController {
     private final UserService userService;
     private final JwtUtil jwtUtil;
 
+    @PostMapping(value = "loginWithGoogle", consumes = "application/json", produces = "application/json")
+    public ApiResponse loginWithGoogle(@RequestBody UserDto userDto) {
+        if (userService.isUserExist(userDto.getEmail())) {
+            // Instead of login with password, authenticate by email for Google users
+            LoginResponseDto loginResponse = userService.login(userDto.getEmail(), userDto.getPassword());
+            if (loginResponse == null) {
+                return new ApiResponse(401, "Google login failed for existing user", null);
+            }
+            return new ApiResponse(200, "User Already Exist", loginResponse);
+        } else {
+            userDto.setRole("USER");
+            userDto.setCreatedAt(new Timestamp(System.currentTimeMillis()));
+            // Save user with Google login flag
+            String response = userService.save(userDto);
+            if (!response.equals("User Registered Successfully")) {
+                return new ApiResponse(500, "Registration Failed", null);
+            }
+            // Now log in (again, by email only)
+            LoginResponseDto apiResponse = userService.login(userDto.getEmail(), userDto.getPassword());
+//            if (apiResponse.getStatus() != 200) {
+//                return new ApiResponse(500, "Login Failed After Registration ", null);
+//            }
+            return new ApiResponse(200, "Login Successful", apiResponse);
+        }
+    }
+
     @GetMapping(value = "/checkToken", params = {"token"})
     public ApiResponse checkToken(@RequestParam String token) {
         boolean isValid = jwtUtil.validateToken(token);
