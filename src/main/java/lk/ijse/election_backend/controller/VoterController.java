@@ -6,6 +6,7 @@ import lk.ijse.election_backend.dto.VoterDto;
 import lk.ijse.election_backend.entity.Voter;
 import lk.ijse.election_backend.service.VoterService;
 import lombok.RequiredArgsConstructor;
+import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
@@ -52,5 +53,11 @@ public class VoterController {
     public ApiResponse deleteVoter(@PathVariable Integer id) {
         String response = voterService.delete(id);
         return new ApiResponse(200, response, null);
+    }
+
+    @PostMapping(value = "verifyVoter" )
+    public ResponseEntity<ApiResponse> verifyVoter(@RequestBody VoterDto voterDto) {
+
+        return ResponseEntity.ok(new ApiResponse(200, "Success", null));
     }
 }
