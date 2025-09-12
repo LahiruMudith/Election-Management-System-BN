@@ -27,7 +27,7 @@ public class VoterDto {
 
     private String district;
 
-    private boolean isVerified;
+    private String verified;
 
     private boolean isActive;
 

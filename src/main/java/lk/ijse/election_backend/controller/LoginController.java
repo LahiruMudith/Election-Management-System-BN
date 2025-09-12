@@ -89,6 +89,7 @@ public class LoginController {
     @GetMapping(value = "/checkToken", params = {"token"})
     public ApiResponse checkToken(@RequestParam String token) {
         boolean isValid = jwtUtil.validateToken(token);
+        System.out.println("Token validation result: " + isValid);
         if (isValid) {
             return new ApiResponse(200, "Token is valid", null);
         } else {
@@ -115,9 +116,9 @@ public class LoginController {
             @RequestParam("age") String age,
             @RequestParam("profession") String profession,
             @RequestParam("manifesto") String manifesto,
-            @RequestParam(value = "idFront", required = false) MultipartFile idFront,
-            @RequestParam(value = "idBack", required = false) MultipartFile idBack,
-            @RequestParam(value = "selfie", required = false) MultipartFile selfie
+            @RequestParam(value = "idFront") MultipartFile idFront,
+            @RequestParam(value = "idBack") MultipartFile idBack,
+            @RequestParam(value = "selfie") MultipartFile selfie
     ) throws IOException {
         System.out.println("Called registerCandidate");
         System.out.println("email: " + email);

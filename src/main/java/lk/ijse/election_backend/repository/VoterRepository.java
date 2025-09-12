@@ -7,4 +7,6 @@ import java.util.Optional;
 
 public interface VoterRepository extends JpaRepository<Voter, Integer> {
     Optional<Voter> findByNicNumber(String nicNumber);
+
+    Optional<Voter> findByUserId_Id(Integer userId);
 }

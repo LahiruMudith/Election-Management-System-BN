@@ -23,6 +23,10 @@ public class VoterService {
         return voterRepository.findAll();
     }
 
+    public Voter getVoterByUserId(Integer userId){
+        return voterRepository.findByUserId_Id(userId).orElseThrow(() -> new RuntimeException("Voter Not Found"));
+    }
+
     public String save(VoterDto voterDto) {
         if (voterRepository.findByNicNumber(voterDto.getNicNumber()).isPresent()){
             throw new RuntimeException("Voter Already Registered");
@@ -36,8 +40,8 @@ public class VoterService {
                         .phoneNumber(voterDto.getPhoneNumber())
                         .fullName(voterDto.getFullName())
                         .district(voterDto.getDistrict())
-                        .isVerified(voterDto.isVerified())
                         .isActive(true)
+                        .verified(Voter.VoterStatus.PENDING)
                         .creatAt(new Timestamp(System.currentTimeMillis()))
                         .build()
         );

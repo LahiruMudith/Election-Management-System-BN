@@ -17,6 +17,13 @@ import java.util.List;
 @NoArgsConstructor
 @Builder
 public class Voter {
+    public enum VoterStatus {
+        PENDING, // Voter has registered but not yet verified
+        VERIFIED,             // Voter has been verified and can vote
+        SUSPENDED,            // Voter account is temporarily suspended
+        DEACTIVATED           // Voter account is permanently deactivated
+    }
+
     @Id
     @GeneratedValue(strategy = GenerationType.AUTO)
     private Integer id;
@@ -38,8 +45,9 @@ public class Voter {
     @Column(nullable = false)
     private String district;
 
-    @Column(name = "is_verified", nullable = false)
-    private boolean isVerified;
+    @Column(name = "is_verified", nullable = false, columnDefinition = "VARCHAR(20) DEFAULT 'PENDING'")
+    @Enumerated(EnumType.STRING)
+    private VoterStatus verified;
 
     @Column(name = "is_active", nullable = false, columnDefinition = "BOOLEAN DEFAULT TRUE")
     private boolean isActive;
