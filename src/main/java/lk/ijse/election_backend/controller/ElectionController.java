@@ -6,6 +6,7 @@ import lk.ijse.election_backend.dto.UserDto;
 import lk.ijse.election_backend.entity.Election;
 import lk.ijse.election_backend.service.ElectionService;
 import lombok.RequiredArgsConstructor;
+import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
@@ -13,17 +14,17 @@ import java.util.List;
 @RequestMapping("/api/v1/election")
 @RestController
 @RequiredArgsConstructor
-@CrossOrigin(origins = "*")
+@CrossOrigin(origins = "http://localhost:3000", allowCredentials = "true")
 public class ElectionController {
     private final ElectionService electionService;
 
     @GetMapping(value = "/getAll")
-    public ApiResponse getAllElections() {
+    public ResponseEntity<ApiResponse> getAllElections() {
         List<Election> all = electionService.getAll();
         if (all.isEmpty()) {
-            return new ApiResponse(404, "No Elections Found", null);
+            return ResponseEntity.status(404).body(new ApiResponse(404, "No Elections Found", null));
         }
-        return new ApiResponse(200, "Success", all);
+        return ResponseEntity.status(200).body(new ApiResponse(200, "Success", all));
     }
 
     @GetMapping("get/{id}")
