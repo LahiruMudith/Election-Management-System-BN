@@ -43,7 +43,7 @@ public class VoterController {
         if (all.isEmpty()) {
             return new ApiResponse(404, "No Voters Found", null);
         }
-        all.removeIf(voter -> !voter.isActive());
+//        all.removeIf(voter -> !voter.isActive());
         return new ApiResponse(200, "Success", all);
     }
 
@@ -105,15 +105,15 @@ public class VoterController {
         String selfieName = null;
 
         if (nicFront != null && !nicFront.isEmpty()) {
-            idFrontName = username + "_idFront" + getExtension(nicFront.getOriginalFilename());
+            idFrontName = nicNumber + "_idFront" + getExtension(nicFront.getOriginalFilename());
             saveFile(uploadDir, nicFront, idFrontName);
         }
         if (nicBack != null && !nicBack.isEmpty()) {
-            idBackName =username + "_idBack" + getExtension(nicBack.getOriginalFilename());
+            idBackName = nicNumber + "_idBack" + getExtension(nicBack.getOriginalFilename());
             saveFile(uploadDir, nicBack, idBackName);
         }
         if (selfie != null && !selfie.isEmpty()) {
-            selfieName =  username + "_selfie" + getExtension(selfie.getOriginalFilename());
+            selfieName =  nicNumber + "_selfie" + getExtension(selfie.getOriginalFilename());
             saveFile(uploadDir, selfie, selfieName);
         }
 
@@ -160,5 +160,18 @@ public class VoterController {
             Path filePath = dirPath.resolve(newFilename);
             Files.copy(file.getInputStream(), filePath, StandardCopyOption.REPLACE_EXISTING);
         }
+    }
+
+    @PatchMapping(value = "/verify/{id}")
+    public ResponseEntity<ApiResponse> verifyVoter(@PathVariable Integer id) {
+        String response = voterService.verify(id);
+        return ResponseEntity.status(HttpStatus.OK)
+                .body(new ApiResponse(200, response, null));
+    }
+    @PatchMapping(value = "/reject/{id}")
+    public ResponseEntity<ApiResponse> rejectVoter(@PathVariable Integer id) {
+        String response = voterService.reject(id);
+        return ResponseEntity.status(HttpStatus.OK)
+                .body(new ApiResponse(200, response, null));
     }
 }

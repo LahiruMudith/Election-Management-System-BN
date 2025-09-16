@@ -21,7 +21,8 @@ public class Voter {
         PENDING, // Voter has registered but not yet verified
         VERIFIED,             // Voter has been verified and can vote
         SUSPENDED,            // Voter account is temporarily suspended
-        DEACTIVATED           // Voter account is permanently deactivated
+        DEACTIVATED,
+        REJECTED// Voter account is permanently deactivated
     }
 
     @Id

@@ -59,6 +59,24 @@ public class VoterService {
         return "User Update Successfully";
     }
 
+    public String verify(Integer id) {
+        Voter voter = voterRepository.findById(id)
+                .orElseThrow(() -> new RuntimeException("User Not Found"));
+
+        voter.setVerified(Voter.VoterStatus.VERIFIED);
+        voterRepository.save(voter);
+        return "User Verified Successfully";
+    }
+
+    public String reject(Integer id) {
+        Voter voter = voterRepository.findById(id)
+                .orElseThrow(() -> new RuntimeException("User Not Found"));
+
+        voter.setVerified(Voter.VoterStatus.REJECTED);
+        voterRepository.save(voter);
+        return "User Verified Successfully";
+    }
+
     public String delete(Integer id) {
         Voter voter = voterRepository.findById(id)
                 .orElseThrow(() -> new RuntimeException("User Not Found"));
