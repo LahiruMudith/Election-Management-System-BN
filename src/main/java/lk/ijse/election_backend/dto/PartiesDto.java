@@ -17,9 +17,15 @@ public class PartiesDto {
 
     private String name;
 
+    private String description;
+
     private String symbol;
 
     private String color;
+
+    private String leaderName;
+
+    private String founderYear;
 
     private boolean isActive;
 }

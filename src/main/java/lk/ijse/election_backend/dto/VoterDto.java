@@ -32,4 +32,10 @@ public class VoterDto {
     private boolean isActive;
 
     private Timestamp creatAt;
+
+    private String nicFrontImgUrl;
+
+    private String nicBackImgUrl;
+
+    private String selfieImgUrl;
 }

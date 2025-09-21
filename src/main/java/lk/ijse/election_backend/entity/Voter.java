@@ -56,6 +56,15 @@ public class Voter {
     @Column(name = "created_at", nullable = false, updatable = false)
     private Timestamp creatAt;
 
+    @Column(name = "nic_front_img", columnDefinition = "TEXT", nullable = false)
+    private String nicFrontImg;
+
+    @Column(name = "nic_back_img", columnDefinition = "TEXT", nullable = false)
+    private String nicBackImg;
+
+    @Column(name = "selfie_img", columnDefinition = "TEXT", nullable = false)
+    private String selfieImg;
+
     @OneToMany(mappedBy = "voter", cascade = CascadeType.ALL)
     private List<Vote> votes;
 }

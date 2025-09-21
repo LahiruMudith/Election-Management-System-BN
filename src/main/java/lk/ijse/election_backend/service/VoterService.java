@@ -32,6 +32,10 @@ public class VoterService {
             throw new RuntimeException("Voter Already Registered");
         }
 
+        System.out.println("nicBackImg: " + voterDto.getNicFrontImgUrl());
+        System.out.println("nicFrontImg: " + voterDto.getNicBackImgUrl());
+        System.out.println("selfieImg: " + voterDto.getSelfieImgUrl());
+
         voterRepository.save(
                 Voter.builder()
                         .id(voterDto.getId())
@@ -43,6 +47,9 @@ public class VoterService {
                         .isActive(true)
                         .verified(Voter.VoterStatus.PENDING)
                         .creatAt(new Timestamp(System.currentTimeMillis()))
+                        .nicFrontImg(voterDto.getNicFrontImgUrl())
+                        .nicBackImg(voterDto.getNicBackImgUrl())
+                        .selfieImg(voterDto.getSelfieImgUrl())
                         .build()
         );
         return "User Registered Successfully";

@@ -21,11 +21,20 @@ public class Parties {
     @Column(nullable = false)
     private String name;
 
+    @Column(nullable = false)
+    private String description;
+
     @Column(nullable = false, unique = true)
     private String symbol;
 
     @Column(nullable = false)
     private String color;
+
+    @Column(nullable = false)
+    private String leaderName;
+
+    @Column(nullable = false)
+    private Integer founderYear;
 
     @Column(name = "is_active", nullable = false)
     private boolean isActive;

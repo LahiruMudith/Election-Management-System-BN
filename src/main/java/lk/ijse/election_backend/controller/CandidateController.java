@@ -17,7 +17,7 @@ import java.util.List;
 @RequestMapping("/api/v1/candidate")
 @RestController
 @RequiredArgsConstructor
-@CrossOrigin(origins = "*")
+@CrossOrigin(origins = "http://localhost:3000", allowCredentials = "true")
 public class CandidateController {
     private final CandidateService candidateService;
     private final UserService userService;
@@ -25,7 +25,7 @@ public class CandidateController {
     @GetMapping("/getAll")
     public ApiResponse getAllCandidates() {
         List<Candidate> all = candidateService.getAll();
-        all.removeIf(candidate -> !candidate.isActive());
+//        all.removeIf(candidate -> !candidate.isActive());
         return new ApiResponse(200, "Success", all);
     }
 

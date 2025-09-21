@@ -13,7 +13,7 @@ import java.util.List;
 @RequestMapping("/api/v1/")
 @RestController
 @RequiredArgsConstructor
-@CrossOrigin(origins = "*")
+@CrossOrigin(origins = "http://localhost:3000", allowCredentials = "true")
 public class UserController {
     private final UserService userService;
 
@@ -39,6 +39,16 @@ public class UserController {
     public ApiResponse updateUser(@RequestBody UserDto userDto) {
         String response = userService.update(userDto);
         return new ApiResponse(200, response, null);
+    }
+
+    @GetMapping("get/{username}")
+    public ApiResponse getVoterByUsername(@PathVariable String username) {
+        System.out.println(username);
+        User user = userService.getUserByUserName(String.valueOf(username));
+        if (user == null) {
+            return new ApiResponse(404, "User Not Found", null);
+        }
+        return new ApiResponse(200, "Success", user);
     }
 
     @DeleteMapping("deleteUser/{id}")

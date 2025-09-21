@@ -1,7 +1,8 @@
 package lk.ijse.election_backend.controller;
 
+import com.cloudinary.Cloudinary;
+import com.cloudinary.utils.ObjectUtils;
 import lk.ijse.election_backend.dto.ApiResponse;
-import lk.ijse.election_backend.dto.UserDto;
 import lk.ijse.election_backend.dto.VoterDto;
 import lk.ijse.election_backend.entity.User;
 import lk.ijse.election_backend.entity.Voter;
@@ -23,10 +24,8 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.nio.file.StandardCopyOption;
-import java.time.LocalDateTime;
-import java.time.ZonedDateTime;
-import java.time.format.DateTimeFormatter;
 import java.util.List;
+import java.util.Map;
 
 @RequestMapping("api/v1/voter")
 @RestController
@@ -36,6 +35,7 @@ import java.util.List;
 public class VoterController {
     private final VoterService voterService;
     private final UserService userService;
+    private final Cloudinary cloudinary;
 
     @GetMapping(value = "/getAll")
     public ApiResponse getAllVoters() {
@@ -98,23 +98,25 @@ public class VoterController {
             @RequestParam("nicBack") MultipartFile nicBack,
             @RequestParam("selfie") MultipartFile selfie) {
 
-        //save voter nic photos and selfie
-        String uploadDir = "src/main/resources/assets/voterPic"; // You can customize this path
-        String idFrontName = null;
-        String idBackName = null;
-        String selfieName = null;
+        String nicFrontUrl = null, nicBackUrl = null, selfieUrl = null;
 
-        if (nicFront != null && !nicFront.isEmpty()) {
-            idFrontName = nicNumber + "_idFront" + getExtension(nicFront.getOriginalFilename());
-            saveFile(uploadDir, nicFront, idFrontName);
-        }
-        if (nicBack != null && !nicBack.isEmpty()) {
-            idBackName = nicNumber + "_idBack" + getExtension(nicBack.getOriginalFilename());
-            saveFile(uploadDir, nicBack, idBackName);
-        }
-        if (selfie != null && !selfie.isEmpty()) {
-            selfieName =  nicNumber + "_selfie" + getExtension(selfie.getOriginalFilename());
-            saveFile(uploadDir, selfie, selfieName);
+        try {
+            if (nicFront != null && !nicFront.isEmpty()) {
+                Map result = cloudinary.uploader().upload(nicFront.getBytes(), ObjectUtils.emptyMap());
+                nicFrontUrl = (String) result.get("secure_url");
+            }
+
+            if (nicBack != null && !nicBack.isEmpty()) {
+                Map result = cloudinary.uploader().upload(nicBack.getBytes(), ObjectUtils.emptyMap());
+                nicBackUrl = (String) result.get("secure_url");
+            }
+
+            if (selfie != null && !selfie.isEmpty()) {
+                Map result = cloudinary.uploader().upload(selfie.getBytes(), ObjectUtils.emptyMap());
+                selfieUrl = (String) result.get("secure_url");
+            }
+        } catch (IOException e) {
+            return ResponseEntity.status(500).body(new ApiResponse(500, "Image Save failed", null));
         }
 
         //save voter details to the database
@@ -127,6 +129,9 @@ public class VoterController {
                 .district(district)
                 .isActive(true)
                 .creatAt(new java.sql.Timestamp(System.currentTimeMillis()))
+                .nicFrontImg(nicFrontUrl)
+                .nicBackImg(nicBackUrl)
+                .selfieImg(selfieUrl)
                 .build();
 
         String message = voterService.save(VoterDto.builder()
@@ -137,18 +142,14 @@ public class VoterController {
                 .district(voter.getDistrict())
                 .isActive(voter.isActive())
                 .creatAt(voter.getCreatAt())
+                .nicFrontImgUrl(voter.getNicFrontImg())
+                .nicBackImgUrl(voter.getNicBackImg())
+                .selfieImgUrl(voter.getSelfieImg())
                 .build()
         );
 
         return ResponseEntity.status(HttpStatus.CREATED)
                 .body(new ApiResponse(201, message, null));
-    }
-
-    public String getExtension(String filename) {
-        if (filename != null && filename.contains(".")) {
-            return filename.substring(filename.lastIndexOf("."));
-        }
-        return "";
     }
 
     public void saveFile(String uploadDir, MultipartFile file, String newFilename) throws IOException {
