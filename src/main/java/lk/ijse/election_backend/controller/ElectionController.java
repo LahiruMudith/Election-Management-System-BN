@@ -4,6 +4,7 @@ import lk.ijse.election_backend.dto.ApiResponse;
 import lk.ijse.election_backend.dto.ElectionDto;
 import lk.ijse.election_backend.dto.UserDto;
 import lk.ijse.election_backend.entity.Election;
+import lk.ijse.election_backend.service.CandidateService;
 import lk.ijse.election_backend.service.ElectionService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
@@ -17,6 +18,7 @@ import java.util.List;
 @CrossOrigin(origins = "http://localhost:3000", allowCredentials = "true")
 public class ElectionController {
     private final ElectionService electionService;
+    private final CandidateService candidateService;
 
     @GetMapping(value = "/getAll")
     public ResponseEntity<ApiResponse> getAllElections() {
@@ -37,9 +39,17 @@ public class ElectionController {
     }
 
     @PostMapping(value = "/save")
-    public ApiResponse saveElection(@RequestBody ElectionDto electionDto) {
+    public ResponseEntity<ApiResponse> saveElection(@RequestBody ElectionDto electionDto) {
+        System.out.println(electionDto);
         String response = electionService.save(electionDto);
-        return new ApiResponse(201, response, null);
+        if (response.equals("Election Already Exists")) {
+            return ResponseEntity.status(409).body(new ApiResponse(409, response, null));
+        }
+        Election election = electionService.getByTitle(electionDto.getTitle());
+        electionDto.getCandidates().forEach(candidateDto -> {
+            candidateService.updateElection(candidateDto.getId(), election.getId());
+        });
+        return ResponseEntity.status(201).body(new ApiResponse(201, response, null));
     }
 
     @PutMapping(value = "/update")

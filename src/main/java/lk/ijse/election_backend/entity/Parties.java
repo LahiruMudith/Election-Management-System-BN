@@ -1,5 +1,6 @@
 package lk.ijse.election_backend.entity;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -40,5 +41,6 @@ public class Parties {
     private boolean isActive;
 
     @OneToMany(mappedBy = "partyId", cascade = CascadeType.ALL)
+    @JsonIgnore
     private List<Candidate> candidates;
 }

@@ -1,5 +1,7 @@
 package lk.ijse.election_backend.controller;
 
+import com.cloudinary.Cloudinary;
+import com.cloudinary.utils.ObjectUtils;
 import jakarta.mail.MessagingException;
 import jakarta.mail.internet.MimeMessage;
 import jakarta.servlet.annotation.MultipartConfig;
@@ -9,8 +11,10 @@ import lk.ijse.election_backend.dto.ApiResponse;
 import lk.ijse.election_backend.dto.CandidateDto;
 import lk.ijse.election_backend.dto.LoginResponseDto;
 import lk.ijse.election_backend.dto.UserDto;
+import lk.ijse.election_backend.entity.Parties;
 import lk.ijse.election_backend.entity.User;
 import lk.ijse.election_backend.service.CandidateService;
+import lk.ijse.election_backend.service.PartiesService;
 import lk.ijse.election_backend.service.UserService;
 import lk.ijse.election_backend.util.JwtUtil;
 import lombok.RequiredArgsConstructor;
@@ -31,6 +35,8 @@ import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.nio.file.StandardCopyOption;
 import java.sql.Timestamp;
+import java.util.List;
+import java.util.Map;
 import java.util.UUID;
 
 @RequestMapping("/api/log")
@@ -40,9 +46,12 @@ import java.util.UUID;
 public class LoginController {
     private final CandidateService candidateService;
     private final UserService userService;
+    private final PartiesService partiesService;
     private final JwtUtil jwtUtil;
     @Autowired
     private JavaMailSender mailSender;
+    @Autowired
+    private Cloudinary cloudinary;
 
     @PostMapping(value = "loginWithGoogle", consumes = "application/json", produces = "application/json")
     public ApiResponse loginWithGoogle(@RequestBody UserDto userDto) {
@@ -116,34 +125,32 @@ public class LoginController {
             @RequestParam("age") String age,
             @RequestParam("profession") String profession,
             @RequestParam("manifesto") String manifesto,
+            @RequestParam("partyId") String partyId,
             @RequestParam(value = "idFront") MultipartFile idFront,
             @RequestParam(value = "idBack") MultipartFile idBack,
             @RequestParam(value = "selfie") MultipartFile selfie
     ) throws IOException {
-        System.out.println("Called registerCandidate");
-        System.out.println("email: " + email);
-        // ... print others as needed
-        if (idFront != null) System.out.println("idFront: " + idFront.getOriginalFilename());
-        if (idBack != null) System.out.println("idBack: " + idBack.getOriginalFilename());
-        if (selfie != null) System.out.println("selfie: " + selfie.getOriginalFilename());
+        String nicFrontUrl = null, nicBackUrl = null, selfieUrl = null;
 
-        String uploadDir = "src/main/resources/assets/candidatePic"; // You can customize this path
-        String idFrontName = null;
-        String idBackName = null;
-        String selfieName = null;
+        try {
+            if (idFront != null && !idFront.isEmpty()) {
+                Map result = cloudinary.uploader().upload(idFront.getBytes(), ObjectUtils.emptyMap());
+                nicFrontUrl = (String) result.get("secure_url");
+            }
 
-        if (idFront != null && !idFront.isEmpty()) {
-            idFrontName = username + "_idFront" + getExtension(idFront.getOriginalFilename());
-            saveFile(uploadDir, idFront, idFrontName);
+            if (idBack != null && !idBack.isEmpty()) {
+                Map result = cloudinary.uploader().upload(idBack.getBytes(), ObjectUtils.emptyMap());
+                nicBackUrl = (String) result.get("secure_url");
+            }
+
+            if (selfie != null && !selfie.isEmpty()) {
+                Map result = cloudinary.uploader().upload(selfie.getBytes(), ObjectUtils.emptyMap());
+                selfieUrl = (String) result.get("secure_url");
+            }
+        } catch (IOException e) {
+            return ResponseEntity.status(500).body(new ApiResponse(500, "Image Save failed", null));
         }
-        if (idBack != null && !idBack.isEmpty()) {
-            idBackName =username + "_idBack" + getExtension(idBack.getOriginalFilename());
-            saveFile(uploadDir, idBack, idBackName);
-        }
-        if (selfie != null && !selfie.isEmpty()) {
-            selfieName =  username + "_selfie" + getExtension(selfie.getOriginalFilename());
-            saveFile(uploadDir, selfie, selfieName);
-        }
+
 
         userService.save(UserDto.builder()
                 .email(email)
@@ -162,12 +169,13 @@ public class LoginController {
                     .age(Integer.parseInt(age))
                     .profession(profession)
                     .manifesto(manifesto)
+                    .partyId(Integer.valueOf(partyId))
                     .isApproved(false)
                     .isActive(true)
                     .createdAt(new Timestamp(System.currentTimeMillis()))
-                    .nicFrontImg(idFrontName)
-                    .nicBackImg(idBackName)
-                    .selfieImg(selfieName)
+                    .nicFrontImg(nicFrontUrl)
+                    .nicBackImg(nicBackUrl)
+                    .selfieImg(selfieUrl)
                     .build()
             );
             if (!save.equals("Candidate Registered Successfully")) {
@@ -179,6 +187,7 @@ public class LoginController {
         return ResponseEntity.status(HttpStatus.CREATED)
                 .body(new ApiResponse(201, "Candidate Registered!", null));
     }
+
 
     @GetMapping(value = "/login", params = {"email", "password"})
     public ApiResponse loginUser(@RequestParam String email, @RequestParam String password, HttpServletResponse response) {
@@ -221,4 +230,12 @@ public class LoginController {
         return "";
     }
 
+    @GetMapping(value = "/getAllParties")
+    public ApiResponse getAllParties() {
+        List<Parties> all = partiesService.getAllParties();
+        if (all.isEmpty()) {
+            return new ApiResponse(404, "No Parties Found", null);
+        }
+        return new ApiResponse(200, "Success", all);
+    }
 }

@@ -21,13 +21,23 @@ public class PartiesService {
         if (partiesRepository.findBySymbol(party.getSymbol()).isPresent()) {
             throw new RuntimeException("Party Already Registered");
         }
+//        System.out.println("symbol: " + party.getSymbol());
+//        System.out.println("name: " + party.getName());
+//        System.out.println("description: " + party.getDescription());
+//        System.out.println("color: " + party.getColor());
+//        System.out.println("leaderName: " + party.getLeaderName());
+//        System.out.println("founderYear: " + party.getFounderYear());
+
         partiesRepository.save(
                 Parties.builder()
                         .id(party.getId())
                         .name(party.getName())
+                        .description(party.getDescription())
                         .symbol(party.getSymbol())
                         .color(party.getColor())
-                        .isActive(party.isActive())
+                        .leaderName(party.getLeaderName())
+                        .founderYear(Integer.parseInt(party.getFounderYear()))
+                        .isActive(true)
                         .build()
         );
         return "Party Registered Successfully";
@@ -40,6 +50,8 @@ public class PartiesService {
         parties.setName(party.getName());
         parties.setSymbol(party.getSymbol());
         parties.setColor(party.getColor());
+        parties.setDescription(party.getDescription());
+        parties.setLeaderName(party.getLeaderName());
 
         partiesRepository.save(parties);
         return "Party Update Successfully";
@@ -56,5 +68,21 @@ public class PartiesService {
     public Parties getPartyById(Integer id) {
         return partiesRepository.findById(id)
                 .orElseThrow(() -> new RuntimeException("Party Not Found"));
+    }
+
+    public String deactivateParty(Integer id) {
+        Parties parties = partiesRepository.findById(id)
+                .orElseThrow(() -> new RuntimeException("Party Not Found"));
+
+        if (parties.isActive()){
+            parties.setActive(false);
+            partiesRepository.save(parties);
+            return "Party Deactivated Successfully";
+        }else {
+            parties.setActive(true);
+            partiesRepository.save(parties);
+        }
+
+        return "Party Activated Successfully";
     }
 }

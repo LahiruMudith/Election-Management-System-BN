@@ -27,6 +27,7 @@ public class Candidate {
 
     @ManyToOne
     @JoinColumn(name = "election_id")
+    @JsonIgnore
     private Election electionId;
 
     @ManyToOne

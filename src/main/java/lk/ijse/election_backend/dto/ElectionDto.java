@@ -22,9 +22,15 @@ public class ElectionDto {
 
     private String description;
 
+    private String type;
+
     private String startDate;
 
     private String endDate;
+
+    private List<String> districts;
+
+    private List<CandidateDto> candidates;
 
     private String status;
 

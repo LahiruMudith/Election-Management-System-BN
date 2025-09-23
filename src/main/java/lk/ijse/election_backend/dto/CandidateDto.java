@@ -21,7 +21,7 @@ public class CandidateDto {
     private Integer id;
     private User userId;
     private Election electionId;
-    private Parties partyId;
+    private Integer partyId;
     private String fullName;
     private int age;
     private String profession;

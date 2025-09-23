@@ -8,6 +8,7 @@ import lombok.Data;
 import lombok.NoArgsConstructor;
 
 import java.sql.Timestamp;
+import java.util.ArrayList;
 import java.util.List;
 
 @Data
@@ -37,11 +38,18 @@ public class Election {
     @Column(nullable = false)
     private String description;
 
+    @Column(nullable = false)
+    private String type;
+
     @Column(name = "start_date", nullable = false)
     private String startDate;
 
     @Column(name = "end_date", nullable = false)
     private String endDate;
+
+    @ElementCollection
+    @Column(nullable = false)
+    private List<String> districts = new ArrayList<>();
 
     @Column(nullable = false)
     @Enumerated(EnumType.STRING)

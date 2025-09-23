@@ -5,6 +5,8 @@ import lk.ijse.election_backend.dto.PartiesDto;
 import lk.ijse.election_backend.entity.Parties;
 import lk.ijse.election_backend.service.PartiesService;
 import lombok.RequiredArgsConstructor;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
@@ -12,7 +14,7 @@ import java.util.List;
 @RequestMapping("/api/v1/parties")
 @RestController
 @RequiredArgsConstructor
-@CrossOrigin(origins = "*")
+@CrossOrigin(origins = "http://localhost:3000", allowCredentials = "true")
 public class PartiesController {
     private final PartiesService partiesService;
     
@@ -22,7 +24,6 @@ public class PartiesController {
         if (all.isEmpty()) {
             return new ApiResponse(404, "No Parties Found", null);
         }
-        all.removeIf(parties -> !parties.isActive());
         return new ApiResponse(200, "Success", all);
     }
 
@@ -37,8 +38,8 @@ public class PartiesController {
 
     @PostMapping(value = "/save")
     public ApiResponse saveParties(@RequestBody PartiesDto partiesDto) {
+        System.out.println("inside save party");
         String response = partiesService.saveParty(partiesDto);
-        System.out.println(partiesDto.getSymbol());
         return new ApiResponse(201, response, null);
     }
 
@@ -46,6 +47,14 @@ public class PartiesController {
     public ApiResponse updateParties(@RequestBody PartiesDto partiesDto) {
         String response = partiesService.updateParty(partiesDto);
         return new ApiResponse(200, response, null);
+    }
+
+    @PatchMapping(value = "/deactivate/{id}")
+    public ResponseEntity<ApiResponse> deactivateParties(@PathVariable Integer id) {
+        String response = partiesService.deactivateParty(id);
+        return ResponseEntity.status(HttpStatus.OK).body(
+                new ApiResponse(200, response, null)
+        );
     }
 
     @DeleteMapping("/delete/{id}")

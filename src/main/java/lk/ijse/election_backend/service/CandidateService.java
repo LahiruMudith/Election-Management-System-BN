@@ -1,14 +1,14 @@
 package lk.ijse.election_backend.service;
 
+import jakarta.persistence.EntityNotFoundException;
 import jakarta.transaction.Transactional;
 import lk.ijse.election_backend.dto.CandidateDto;
-import lk.ijse.election_backend.dto.UserDto;
 import lk.ijse.election_backend.entity.Candidate;
+import lk.ijse.election_backend.entity.Election;
+import lk.ijse.election_backend.entity.Parties;
 import lk.ijse.election_backend.exception.UserAlreadyRegisteredException;
 import lk.ijse.election_backend.repository.CandidateRepository;
-import lk.ijse.election_backend.util.JwtUtil;
 import lombok.RequiredArgsConstructor;
-import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
@@ -18,6 +18,9 @@ import java.util.Optional;
 @RequiredArgsConstructor
 public class CandidateService {
     private final CandidateRepository candidateRepository;
+    private final UserService userService;
+    private final PartiesService partiesService;
+    private final ElectionService electionService;
 
     public List<Candidate> getAll(){
         return candidateRepository.findAll();
@@ -28,11 +31,13 @@ public class CandidateService {
             throw new UserAlreadyRegisteredException("Candidate Already Registered");
         }
 
+        Parties party = partiesService.getPartyById(candidateDto.getPartyId());
+
         Candidate candidate = Candidate.builder()
                 .id(candidateDto.getId())
                 .userId(candidateDto.getUserId())
                 .electionId(candidateDto.getElectionId())
-                .partyId(candidateDto.getPartyId())
+                .partyId(party)
                 .fullName(candidateDto.getFullName())
                 .age(candidateDto.getAge())
                 .profession(candidateDto.getProfession())
@@ -49,15 +54,21 @@ public class CandidateService {
         return "Candidate Registered Successfully";
     }
 
+
     public String update(CandidateDto candidateDto) {
         if (candidateRepository.findById(candidateDto.getId()).isEmpty()){
             throw new RuntimeException("Candidate Not Found");
         }
         Optional<Candidate> candidate = candidateRepository.findById(candidateDto.getId());
 
+        Parties parties = partiesService.getPartyById(candidateDto.getPartyId());
+
+        Election election = electionService.getById(candidateDto.getElectionId().getId());
+
+
         candidate.ifPresent(c -> {
-            c.setElectionId(candidateDto.getElectionId());
-            c.setPartyId(candidateDto.getPartyId());
+            c.setElectionId(election);
+            c.setPartyId(parties);
             c.setFullName(candidateDto.getFullName());
             c.setAge(candidateDto.getAge());
             c.setProfession(candidateDto.getProfession());
@@ -86,5 +97,25 @@ public class CandidateService {
     public Candidate getById(Integer id){
         return candidateRepository.findById(id)
                 .orElseThrow(() -> new RuntimeException("Candidate Not Found"));
+    }
+
+    public String updateElection(Integer candidateId, Integer electionId) {
+        // Get the election entity by ID
+        Election election = electionService.getById(electionId);
+        if (election == null) {
+            throw new EntityNotFoundException("Election not found with id: " + electionId);
+        }
+
+        // Get the candidate entity by ID
+        Candidate candidate = candidateRepository.getReferenceById(candidateId);
+
+        // Assign the election to the candidate
+        candidate.setElectionId(election); // If using just the ID
+        // or if you have a relationship, use:
+        // candidate.setElection(election);
+
+        // Save the updated candidate
+        candidateRepository.save(candidate);
+        return "Candidate Election Updated Successfully";
     }
 }
