@@ -51,7 +51,7 @@ public class ElectionService {
                 .type(electionDto.getType())
                 .startDate(electionDto.getStartDate())
                 .endDate(electionDto.getEndDate())
-//                .districts(electionDto.getDistricts())
+                .districts(electionDto.getDistricts())
                 .status(Election.ElectionStatus.NOT_STARTED)
 //                .candidates(candidates)
                 .createdAt(new Timestamp(System.currentTimeMillis()))
