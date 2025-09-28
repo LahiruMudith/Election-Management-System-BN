@@ -30,21 +30,21 @@ The system allows voters to register, verify NICs, vote securely, and for admins
 * Summary cards for quick overview
 * **Manage Political Parties**
 
-    * Add, update, view, delete, deactivate parties
-    * Fields: party name, symbol, color, leader, founding year, description
+  * Add, update, view, delete, deactivate parties
+  * Fields: party name, symbol, color, leader, founding year, description
 * **Manage Candidates**
 
-    * View pending applications
-    * Approve or reject candidate requests
+  * View pending applications
+  * Approve or reject candidate requests
 * **Manage Voters**
 
-    * Approve or reject NIC verification
+  * Approve or reject NIC verification
 * **Create Elections**
 
-    * Step 1: Enter basic details (title, type, description, start & end date)
-    * Step 2: Select districts
-    * Step 3: Select candidates (minimum 2 required)
-    * Step 4: Confirm & create election
+  * Step 1: Enter basic details (title, type, description, start & end date)
+  * Step 2: Select districts
+  * Step 3: Select candidates (minimum 2 required)
+  * Step 4: Confirm & create election
 
 ### 🔹 Extra Features
 
@@ -97,7 +97,7 @@ The system allows voters to register, verify NICs, vote securely, and for admins
 ### 1️⃣ Clone Repository
 
 ```bash
-git clone https://github.com/your-username/e-voting-system.git
+git clone https://github.com/LahiruMudith/Election-Management-System-FN.git
 cd e-voting-system
 ```
 
@@ -151,7 +151,7 @@ cloudinary.api_secret=your-api-secret
 ### Frontend (`.env`)
 
 ```env
-REACT_APP_API_BASE_URL=http://localhost:8080/api
+REACT_APP_API_BASE_URL=http://localhost:3000/api
 ```
 
 ---
@@ -175,4 +175,4 @@ REACT_APP_API_BASE_URL=http://localhost:8080/api
 
 ## 👨‍💻 Author
 
-Developed by **Lahiru Mathushal**
+Developed by **Lahiru Muidth**
