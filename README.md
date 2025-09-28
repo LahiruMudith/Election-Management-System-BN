@@ -50,6 +50,8 @@ The system allows voters to register, verify NICs, vote securely, and for admins
 
 * **Payment Gateway Integration (PayHere)** – self-study feature
 * **React Hot Toast** for smooth alert notifications
+* **Logging System** – application logs for debugging & tracking
+* **Swagger UI** – API documentation and testing interface
 
 ---
 
@@ -62,34 +64,14 @@ The system allows voters to register, verify NICs, vote securely, and for admins
 * Java Mail (for sending Google login passwords)
 * MySQL Database
 * Cloudinary (for storing NIC/selfie images)
+* Logback/SLF4J (for logging)
+* Swagger UI (API documentation)
 
 ### Frontend (Node.js + React)
 
 * React.js (UI)
 * Node.js (frontend server)
 * React Hot Toast (alert system)
-* Axios (API requests)
-
----
-
-## 📂 Project Structure
-
-```
-/project-root
-│
-├── /backend        # Spring Boot backend
-│   ├── src
-│   ├── pom.xml
-│   └── README.md
-│
-├── /frontend       # React + Node.js frontend
-│   ├── src
-│   ├── package.json
-│   └── README.md
-│
-└── README.md       # Main project readme
-```
-
 ---
 
 ## ⚙️ Installation
@@ -110,9 +92,16 @@ cd backend
 # - Database (MySQL)
 # - Cloudinary credentials
 # - Mail server credentials
+# - Logging configs
 mvn clean install
 mvn spring-boot:run
 ```
+
+Backend APIs will be available at:
+👉 `http://localhost:3000/`
+
+Swagger UI available at:
+👉 `http://localhost:8080/swagger-ui/index.html`
 
 ### 3️⃣ Frontend Setup (React + Node.js)
 
@@ -146,12 +135,10 @@ spring.mail.password=your-email-password
 cloudinary.cloud_name=your-cloud-name
 cloudinary.api_key=your-api-key
 cloudinary.api_secret=your-api-secret
-```
 
-### Frontend (`.env`)
-
-```env
-REACT_APP_API_BASE_URL=http://localhost:3000/api
+# Logging
+logging.level.org.springframework=INFO
+logging.file.name=logs/app.log
 ```
 
 ---
@@ -163,6 +150,7 @@ REACT_APP_API_BASE_URL=http://localhost:3000/api
 * Voter Dashboard
 * Admin Dashboard
 * Create Election Flow
+* Swagger UI
 
 ---
 
@@ -175,4 +163,4 @@ REACT_APP_API_BASE_URL=http://localhost:3000/api
 
 ## 👨‍💻 Author
 
-Developed by **Lahiru Muidth**
+Developed by **Lahiru Mudith**
