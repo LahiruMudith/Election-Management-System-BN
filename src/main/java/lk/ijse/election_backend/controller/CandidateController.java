@@ -50,4 +50,10 @@ public class CandidateController {
         String response = candidateService.delete(id);
         return new ApiResponse(200, response, null);
     }
+
+    @PatchMapping(value = "verify/{id}")
+    public ResponseEntity verifyCandidate(@PathVariable Integer id) {
+        String response = candidateService.verifyCandidate(id);
+        return ResponseEntity.status(200).body(new ApiResponse(200, response, null));
+    }
 }

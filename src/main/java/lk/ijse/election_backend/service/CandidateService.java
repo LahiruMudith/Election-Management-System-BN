@@ -118,4 +118,17 @@ public class CandidateService {
         candidateRepository.save(candidate);
         return "Candidate Election Updated Successfully";
     }
+
+    public String verifyCandidate(Integer id) {
+        Candidate candidate = candidateRepository.findById(id)
+                .orElseThrow(() -> new RuntimeException("Candidate Not Found"));
+
+        if (candidate.isApproved()) {
+            candidate.setApproved(false);
+            return "Candidate Rejected";
+        }
+        candidate.setApproved(true);
+        candidateRepository.save(candidate);
+        return "Candidate Verified";
+    }
 }

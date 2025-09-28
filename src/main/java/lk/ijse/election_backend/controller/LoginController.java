@@ -54,7 +54,7 @@ public class LoginController {
     private Cloudinary cloudinary;
 
     @PostMapping(value = "loginWithGoogle", consumes = "application/json", produces = "application/json")
-    public ApiResponse loginWithGoogle(@RequestBody UserDto userDto) {
+    public ApiResponse loginWithGoogle(@RequestBody UserDto userDto, HttpServletResponse httpResponse) {
         if (userService.isUserExist(userDto.getEmail())) {
             LoginResponseDto loginResponse = userService.login(userDto.getEmail(), userDto.getPassword());
             return new ApiResponse(200, "User Already Exist", loginResponse);
@@ -87,11 +87,12 @@ public class LoginController {
                 mailSender.send(mimeMessage);
             }).start();
 
-            ApiResponse apiResponse = loginUser(userDto.getEmail(), userDto.getPassword(), null);
-            if (apiResponse.getStatus() != 200) {
-                return new ApiResponse(500, "Login Failed After Registration ", null);
-            }
-            return new ApiResponse(200, "Login Successful", apiResponse.getData());
+//            ApiResponse apiResponse = loginUser(userDto.getEmail(), userDto.getPassword(), null);
+//            System.out.println(apiResponse);
+//            if (apiResponse.getStatus() != 200) {
+//                return new ApiResponse(200, "Login Failed After Registration ", null);
+//            }
+            return new ApiResponse(200, "Google Register Successful", null);
         }
     }
 
@@ -197,6 +198,7 @@ public class LoginController {
         }
 
         String token = loginResponse.getAccessToken();
+        System.out.println("Generated Token: " + token);
         Cookie cookie = new Cookie("token", token);
         cookie.setHttpOnly(true);
         cookie.setSecure(true); // set false if not using HTTPS locally
@@ -209,7 +211,7 @@ public class LoginController {
                 String.format("token=%s; Max-Age=%d; Path=/; HttpOnly; Secure; SameSite=Strict",
                         token, 24 * 60 * 60)
         );
-
+        System.out.println(loginResponse);
         return new ApiResponse(200, "Login Successful", loginResponse);
     }
 
