@@ -131,6 +131,35 @@ public class LoginController {
             @RequestParam(value = "idBack") MultipartFile idBack,
             @RequestParam(value = "selfie") MultipartFile selfie
     ) throws IOException {
+
+        // Debug prints to check incoming data
+        System.out.println("=== Candidate Registration Data ===");
+        System.out.println("Email: " + email);
+        System.out.println("Username: " + username);
+        System.out.println("Password: " + password);
+        System.out.println("Full Name: " + fullName);
+        System.out.println("Age: " + age);
+        System.out.println("Profession: " + profession);
+        System.out.println("Manifesto: " + manifesto);
+        System.out.println("Party ID: " + partyId);
+        System.out.println("ID Front file: " + (idFront != null ? idFront.getOriginalFilename() + " (" + idFront.getSize() + " bytes)" : "null"));
+        System.out.println("ID Back file: " + (idBack != null ? idBack.getOriginalFilename() + " (" + idBack.getSize() + " bytes)" : "null"));
+        System.out.println("Selfie file: " + (selfie != null ? selfie.getOriginalFilename() + " (" + selfie.getSize() + " bytes)" : "null"));
+        System.out.println("=================================");
+
+        if (partyId == null || partyId.trim().isEmpty()) {
+            return ResponseEntity.status(400).body(new ApiResponse(400, "Party is required", null));
+        }
+
+        int parsedPartyId;
+        int parsedAge;
+        try {
+            parsedPartyId = Integer.parseInt(partyId);
+            parsedAge = Integer.parseInt(age);
+        } catch (NumberFormatException e) {
+            return ResponseEntity.status(400).body(new ApiResponse(400, "Invalid age or party ID", null));
+        }
+
         String nicFrontUrl = null, nicBackUrl = null, selfieUrl = null;
 
         try {
@@ -167,10 +196,10 @@ public class LoginController {
             String save = candidateService.save(CandidateDto.builder()
                     .userId(userByEmail)
                     .fullName(fullName)
-                    .age(Integer.parseInt(age))
+                    .age(parsedAge)
                     .profession(profession)
                     .manifesto(manifesto)
-                    .partyId(Integer.valueOf(partyId))
+                    .partyId(parsedPartyId)
                     .isApproved(false)
                     .isActive(true)
                     .createdAt(new Timestamp(System.currentTimeMillis()))

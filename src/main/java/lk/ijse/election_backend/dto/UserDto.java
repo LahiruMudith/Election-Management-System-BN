@@ -12,9 +12,11 @@ import java.sql.Timestamp;
 import java.util.List;
 
 
+
 @Data
-@AllArgsConstructor
 @Builder
+@NoArgsConstructor
+@AllArgsConstructor
 public class UserDto {
     private Integer id;
     private String email;
