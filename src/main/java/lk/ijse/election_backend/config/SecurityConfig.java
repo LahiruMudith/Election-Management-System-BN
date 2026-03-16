@@ -41,7 +41,7 @@ public class SecurityConfig {
                                 "/v3/api-docs.yaml"
                         ).permitAll()
                         // Allow your public API endpoints
-                        .requestMatchers("/api/log/registerCandidate").permitAll()
+                        .requestMatchers("/api/log/**").permitAll()
                         // All other endpoints require authentication
                         .anyRequest().authenticated()
                 )

@@ -147,41 +147,57 @@ public class LoginController {
         System.out.println("Selfie file: " + (selfie != null ? selfie.getOriginalFilename() + " (" + selfie.getSize() + " bytes)" : "null"));
         System.out.println("=================================");
 
+        System.out.println("Starting partyId validation");
         if (partyId == null || partyId.trim().isEmpty()) {
+            System.out.println("Party ID validation failed - empty or null");
             return ResponseEntity.status(400).body(new ApiResponse(400, "Party is required", null));
         }
+        System.out.println("Party ID validation passed");
 
+        System.out.println("Starting number parsing for partyId and age");
         int parsedPartyId;
         int parsedAge;
         try {
             parsedPartyId = Integer.parseInt(partyId);
             parsedAge = Integer.parseInt(age);
+            System.out.println("Number parsing successful - PartyId: " + parsedPartyId + ", Age: " + parsedAge);
         } catch (NumberFormatException e) {
+            System.out.println("Number parsing failed: " + e.getMessage());
             return ResponseEntity.status(400).body(new ApiResponse(400, "Invalid age or party ID", null));
         }
 
         String nicFrontUrl = null, nicBackUrl = null, selfieUrl = null;
+        System.out.println("Starting image upload to Cloudinary");
 
         try {
             if (idFront != null && !idFront.isEmpty()) {
+                System.out.println("Uploading ID front image");
                 Map result = cloudinary.uploader().upload(idFront.getBytes(), ObjectUtils.emptyMap());
                 nicFrontUrl = (String) result.get("secure_url");
+                System.out.println("ID front uploaded successfully: " + nicFrontUrl);
             }
 
             if (idBack != null && !idBack.isEmpty()) {
+                System.out.println("Uploading ID back image");
                 Map result = cloudinary.uploader().upload(idBack.getBytes(), ObjectUtils.emptyMap());
                 nicBackUrl = (String) result.get("secure_url");
+                System.out.println("ID back uploaded successfully: " + nicBackUrl);
             }
 
             if (selfie != null && !selfie.isEmpty()) {
+                System.out.println("Uploading selfie image");
                 Map result = cloudinary.uploader().upload(selfie.getBytes(), ObjectUtils.emptyMap());
                 selfieUrl = (String) result.get("secure_url");
+                System.out.println("Selfie uploaded successfully: " + selfieUrl);
             }
+            System.out.println("All image uploads completed successfully");
         } catch (IOException e) {
+            System.out.println("Image upload failed: " + e.getMessage());
             return ResponseEntity.status(500).body(new ApiResponse(500, "Image Save failed", null));
         }
 
 
+        System.out.println("Saving user to database");
         userService.save(UserDto.builder()
                 .email(email)
                 .username(username)
@@ -190,9 +206,15 @@ public class LoginController {
                 .createdAt(new Timestamp(System.currentTimeMillis()))
                 .build()
         );
+        System.out.println("User saved successfully");
+        
+        System.out.println("Retrieving user by email: " + email);
         User userByEmail = userService.getUserByEmail(email);
+        System.out.println("User retrieved: " + (userByEmail != null ? userByEmail.getUsername() : "null"));
 
+        System.out.println("Checking user active status");
         if (userByEmail.isActive()){
+            System.out.println("User is active, saving candidate data");
             String save = candidateService.save(CandidateDto.builder()
                     .userId(userByEmail)
                     .fullName(fullName)
@@ -208,12 +230,18 @@ public class LoginController {
                     .selfieImg(selfieUrl)
                     .build()
             );
+            System.out.println("Candidate save result: " + save);
             if (!save.equals("Candidate Registered Successfully")) {
+                System.out.println("Candidate registration failed");
                 return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
                         .body(new ApiResponse(500, "Registration Failed: " + save, null));
             }
+            System.out.println("Candidate registration successful");
+        } else {
+            System.out.println("User is not active");
         }
 
+        System.out.println("Returning final success response");
         return ResponseEntity.status(HttpStatus.CREATED)
                 .body(new ApiResponse(201, "Candidate Registered!", null));
     }

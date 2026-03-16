@@ -37,10 +37,17 @@ public class UserServiceImpl implements UserService {
     }
 
     public String save(UserDto userDto) {
+        System.out.println("=== UserServiceImpl.save() started ===");
+        System.out.println("Input UserDto: " + userDto);
+        
+        System.out.println("Checking if username already exists: " + userDto.getUsername());
         if (userRepository.findByUsername(userDto.getUsername()).isPresent()) {
+            System.out.println("Username already exists - throwing exception");
             throw new RuntimeException("User Already Registered");
         }
+        System.out.println("Username is available");
 
+        System.out.println("Building User entity");
         User user = User.builder()
                 .id(userDto.getId())
                 .email(userDto.getEmail())
@@ -51,9 +58,12 @@ public class UserServiceImpl implements UserService {
                 .createdAt(new Timestamp(System.currentTimeMillis()))
                 .build();
 
-        System.out.println(user);
+        System.out.println("User entity created: " + user);
+        System.out.println("Saving user to database");
 
         userRepository.save(user);
+        System.out.println("User saved successfully");
+        System.out.println("=== UserServiceImpl.save() completed ===");
         return "User Registered Successfully";
     }
 
