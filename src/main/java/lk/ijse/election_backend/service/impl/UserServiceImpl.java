@@ -21,15 +21,33 @@ public class UserServiceImpl implements UserService {
     private final JwtUtil jwtUtil;
 
     public LoginResponseDto login(String email, String password) {
+        System.out.println("=== UserServiceImpl.login() started ===");
+        System.out.println("Login attempt - Email: " + email + ", Password: [PROTECTED]");
+        
+        System.out.println("Finding user by email and active status");
         User user = userRepository.findByEmailAndIsActiveTrue(email).orElseThrow(
-                () -> new RuntimeException("User Not Found")
+                () -> {
+                    System.out.println("User not found or inactive: " + email);
+                    return new RuntimeException("User Not Found");
+                }
         );
+        System.out.println("User found: " + user.getUsername() + ", Role: " + user.getRole());
 
+        System.out.println("Verifying password");
         if (!passwordEncoder.matches(password, user.getPassword())){
+            System.out.println("Password verification failed for user: " + user.getUsername());
             throw new RuntimeException("Invalid Password");
         }
+        System.out.println("Password verified successfully");
+        
+        System.out.println("Generating JWT token for user: " + user.getUsername());
         String token = jwtUtil.generateToken(user.getUsername());
-        return new LoginResponseDto(token, user.getUsername(), user.getRole().name());
+        System.out.println("Token generated successfully");
+        
+        LoginResponseDto response = new LoginResponseDto(token, user.getUsername(), user.getRole().name());
+        System.out.println("LoginResponse created: " + response);
+        System.out.println("=== UserServiceImpl.login() completed ===");
+        return response;
     }
 
     public List<User> getAll(){
