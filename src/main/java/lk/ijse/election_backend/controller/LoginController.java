@@ -249,26 +249,39 @@ public class LoginController {
 
     @GetMapping(value = "/login", params = {"email", "password"})
     public ApiResponse loginUser(@RequestParam String email, @RequestParam String password, HttpServletResponse response) {
+        System.out.println("=== LoginController.loginUser() started ===");
+        System.out.println("Login attempt - Email: " + email + ", Password: [PROTECTED]");
+        
+        System.out.println("Calling userService.login()");
         LoginResponseDto loginResponse = userService.login(email, password);
+        System.out.println("UserService login response: " + loginResponse);
+        
         if (loginResponse == null) {
+            System.out.println("Login failed - Invalid credentials");
             return new ApiResponse(404, "Invalid Credentials", null);
         }
+        System.out.println("Login successful - proceeding with token generation");
 
         String token = loginResponse.getAccessToken();
         System.out.println("Generated Token: " + token);
+        
+        System.out.println("Creating and setting cookie");
         Cookie cookie = new Cookie("token", token);
         cookie.setHttpOnly(true);
         cookie.setSecure(true); // set false if not using HTTPS locally
         cookie.setPath("/");
         cookie.setMaxAge(24 * 60 * 60); // 1 day
 
+        System.out.println("Adding cookie to response");
         response.addCookie(cookie); // <--- This sends the cookie to the client
         // Add this after response.addCookie(cookie);
         response.setHeader("Set-Cookie",
                 String.format("token=%s; Max-Age=%d; Path=/; HttpOnly; Secure; SameSite=Strict",
                         token, 24 * 60 * 60)
         );
-        System.out.println(loginResponse);
+        
+        System.out.println("LoginResponse details: " + loginResponse);
+        System.out.println("=== LoginController.loginUser() completed ===");
         return new ApiResponse(200, "Login Successful", loginResponse);
     }
 
